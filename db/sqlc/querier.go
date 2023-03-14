@@ -26,7 +26,7 @@ type Querier interface {
 	GetPlaylistSong(ctx context.Context, id int64) (PlaylistsSong, error)
 	GetSong(ctx context.Context, id int64) (Song, error)
 	GetSongGenre(ctx context.Context, id int64) (SongsGenre, error)
-	GetUser(ctx context.Context, id int64) (User, error)
+	GetUser(ctx context.Context, username string) (User, error)
 	ListGenres(ctx context.Context, arg ListGenresParams) ([]Genre, error)
 	ListPlaylists(ctx context.Context, arg ListPlaylistsParams) ([]Playlist, error)
 	ListPlaylistsSongs(ctx context.Context, arg ListPlaylistsSongsParams) ([]PlaylistsSong, error)

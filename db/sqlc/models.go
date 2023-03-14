@@ -52,6 +52,6 @@ type User struct {
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
 	Image     string    `json:"image"`
-	Role      bool      `json:"role"`
+	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 }

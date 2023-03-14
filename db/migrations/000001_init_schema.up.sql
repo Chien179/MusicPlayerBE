@@ -1,11 +1,11 @@
 CREATE TABLE "users" (
   "id" BIGSERIAL PRIMARY KEY,
-  "username" varchar NOT NULL,
+  "username" varchar UNIQUE NOT NULL,
   "full_name" varchar NOT NULL,
-  "email" varchar UNIQUE NOT NULL,
+  "email" varchar UNIQUE NOT NULL,  
   "password" varchar NOT NULL,
   "image" varchar NOT NULL,
-  "role" boolean NOT NULL,
+  "role" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT 'now()'
 );
 

@@ -29,7 +29,7 @@ type CreateUserParams struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Image    string `json:"image"`
-	Role     bool   `json:"role"`
+	Role     string `json:"role"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -67,11 +67,11 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 
 const getUser = `-- name: GetUser :one
 SELECT id, username, full_name, email, password, image, role, created_at FROM users
-WHERE id = $1 LIMIT 1
+WHERE username = $1 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, id)
+func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, username)
 	var i User
 	err := row.Scan(
 		&i.ID,
