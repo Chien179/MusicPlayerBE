@@ -7,34 +7,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type getSongsRequest struct {
+type getGenresRequest struct {
 	Page  int32 `form:"page" binding:"required,min=1"`
-	Limit int32 `form:"limit" binding:"required,min=10,max=100"`
+	Limit int32 `form:"limit" binding:"required,min=5,max=20"`
 }
 
-func (server *Server) getSongs(ctx *gin.Context) {
-	var req getSongsRequest
+func (server *Server) getGenres(ctx *gin.Context) {
+	var req getGenresRequest
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	args := db.GetSongsParams{
+	args := db.GetGenresParams{
 		Limit:  req.Limit,
 		Offset: (req.Page - 1) * req.Limit,
 	}
 
-	songs, err := server.store.GetSongs(ctx, args)
+	genres, err := server.store.GetGenres(ctx, args)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, songs)
-}
-
-func (Server *Server) createSong(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, struct{}{})
+	ctx.JSON(http.StatusOK, genres)
 }

@@ -63,20 +63,20 @@ func (q *Queries) GetGenre(ctx context.Context, id int64) (Genre, error) {
 	return i, err
 }
 
-const listGenres = `-- name: ListGenres :many
+const getGenres = `-- name: GetGenres :many
 SELECT id, name, image, created_at FROM genres
 ORDER BY id
 LIMIT $1
 OFFSET $2
 `
 
-type ListGenresParams struct {
+type GetGenresParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListGenres(ctx context.Context, arg ListGenresParams) ([]Genre, error) {
-	rows, err := q.db.QueryContext(ctx, listGenres, arg.Limit, arg.Offset)
+func (q *Queries) GetGenres(ctx context.Context, arg GetGenresParams) ([]Genre, error) {
+	rows, err := q.db.QueryContext(ctx, getGenres, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

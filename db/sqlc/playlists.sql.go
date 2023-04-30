@@ -9,6 +9,28 @@ import (
 	"context"
 )
 
+const addSongToPlaylist = `-- name: AddSongToPlaylist :one
+INSERT INTO playlists_songs (
+  playlists_id,
+  songs_id
+) VALUES (
+  $1, $2
+) 
+RETURNING id, songs_id, playlists_id
+`
+
+type AddSongToPlaylistParams struct {
+	PlaylistsID int64 `json:"playlists_id"`
+	SongsID     int64 `json:"songs_id"`
+}
+
+func (q *Queries) AddSongToPlaylist(ctx context.Context, arg AddSongToPlaylistParams) (PlaylistsSong, error) {
+	row := q.db.QueryRowContext(ctx, addSongToPlaylist, arg.PlaylistsID, arg.SongsID)
+	var i PlaylistsSong
+	err := row.Scan(&i.ID, &i.SongsID, &i.PlaylistsID)
+	return i, err
+}
+
 const createPlaylist = `-- name: CreatePlaylist :one
 INSERT INTO playlists (
   users_id,
@@ -49,13 +71,14 @@ func (q *Queries) DeletePlaylist(ctx context.Context, id int64) error {
 	return err
 }
 
-const getPlaylist = `-- name: GetPlaylist :one
+const getUserPlaylist = `-- name: GetUserPlaylist :one
 SELECT id, users_id, name, image, created_at FROM playlists
-WHERE id = $1 LIMIT 1
+WHERE id = $1
+LIMIT 1
 `
 
-func (q *Queries) GetPlaylist(ctx context.Context, id int64) (Playlist, error) {
-	row := q.db.QueryRowContext(ctx, getPlaylist, id)
+func (q *Queries) GetUserPlaylist(ctx context.Context, id int64) (Playlist, error) {
+	row := q.db.QueryRowContext(ctx, getUserPlaylist, id)
 	var i Playlist
 	err := row.Scan(
 		&i.ID,
@@ -67,20 +90,61 @@ func (q *Queries) GetPlaylist(ctx context.Context, id int64) (Playlist, error) {
 	return i, err
 }
 
-const listPlaylists = `-- name: ListPlaylists :many
-SELECT id, users_id, name, image, created_at FROM playlists
-ORDER BY id
-LIMIT $1
-OFFSET $2
+const getUserPlaylistSongs = `-- name: GetUserPlaylistSongs :many
+SELECT
+  s.id,
+  s.name,
+  s.singer,
+  s.image,
+  s.file_url,
+  s.duration,
+  s.created_at
+FROM
+  songs s
+  JOIN playlists_songs ps ON ps.songs_id = s.id
+WHERE
+    playlists_id = $1
 `
 
-type ListPlaylistsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+func (q *Queries) GetUserPlaylistSongs(ctx context.Context, playlistsID int64) ([]Song, error) {
+	rows, err := q.db.QueryContext(ctx, getUserPlaylistSongs, playlistsID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Song{}
+	for rows.Next() {
+		var i Song
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Singer,
+			&i.Image,
+			&i.FileUrl,
+			&i.Duration,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-func (q *Queries) ListPlaylists(ctx context.Context, arg ListPlaylistsParams) ([]Playlist, error) {
-	rows, err := q.db.QueryContext(ctx, listPlaylists, arg.Limit, arg.Offset)
+const getUserPlaylists = `-- name: GetUserPlaylists :many
+SELECT id, users_id, name, image, created_at FROM playlists
+WHERE users_id = $1
+ORDER BY id
+`
+
+func (q *Queries) GetUserPlaylists(ctx context.Context, usersID int64) ([]Playlist, error) {
+	rows, err := q.db.QueryContext(ctx, getUserPlaylists, usersID)
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +170,22 @@ func (q *Queries) ListPlaylists(ctx context.Context, arg ListPlaylistsParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const removeSongFromPlaylist = `-- name: RemoveSongFromPlaylist :exec
+DELETE FROM playlists_songs
+WHERE playlists_id = $1 
+AND songs_id = $2
+`
+
+type RemoveSongFromPlaylistParams struct {
+	PlaylistsID int64 `json:"playlists_id"`
+	SongsID     int64 `json:"songs_id"`
+}
+
+func (q *Queries) RemoveSongFromPlaylist(ctx context.Context, arg RemoveSongFromPlaylistParams) error {
+	_, err := q.db.ExecContext(ctx, removeSongFromPlaylist, arg.PlaylistsID, arg.SongsID)
+	return err
 }
 
 const updatePlaylist = `-- name: UpdatePlaylist :one

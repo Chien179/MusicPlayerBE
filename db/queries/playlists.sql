@@ -1,12 +1,7 @@
--- name: GetPlaylist :one
+-- name: GetUserPlaylists :many
 SELECT * FROM playlists
-WHERE id = $1 LIMIT 1;
-
--- name: ListPlaylists :many
-SELECT * FROM playlists
-ORDER BY id
-LIMIT $1
-OFFSET $2;
+WHERE users_id = $1
+ORDER BY id;
 
 -- name: CreatePlaylist :one
 INSERT INTO playlists (
@@ -28,3 +23,37 @@ SET name = $2,
     image = $3
 WHERE id = $1
 RETURNING *;
+
+-- name: GetUserPlaylistSongs :many
+SELECT
+  s.id,
+  s.name,
+  s.singer,
+  s.image,
+  s.file_url,
+  s.duration,
+  s.created_at
+FROM
+  songs s
+  JOIN playlists_songs ps ON ps.songs_id = s.id
+WHERE
+    playlists_id = $1;
+
+-- name: GetUserPlaylist :one
+SELECT * FROM playlists
+WHERE id = $1
+LIMIT 1;
+
+-- name: AddSongToPlaylist :one
+INSERT INTO playlists_songs (
+  playlists_id,
+  songs_id
+) VALUES (
+  $1, $2
+) 
+RETURNING *;
+
+-- name: RemoveSongFromPlaylist :exec
+DELETE FROM playlists_songs
+WHERE playlists_id = $1 
+AND songs_id = $2;

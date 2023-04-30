@@ -66,6 +66,9 @@ ALTER TABLE "songs_genres" ADD FOREIGN KEY ("songs_id") REFERENCES "genres" ("id
 
 ALTER TABLE "songs_genres" ADD FOREIGN KEY ("genres_id") REFERENCES "songs" ("id");
 
-ALTER TABLE "playlists_songs" ADD FOREIGN KEY ("songs_id") REFERENCES "playlists" ("id");
+ALTER TABLE "playlists_songs" ADD FOREIGN KEY ("playlists_id") REFERENCES "playlists" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "playlists_songs" ADD FOREIGN KEY ("playlists_id") REFERENCES "songs" ("id");
+ALTER TABLE "playlists_songs" ADD FOREIGN KEY ("songs_id") REFERENCES "songs" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "playlists_songs" ADD CONSTRAINT "song_playlist_key" UNIQUE ("playlists_id", "songs_id");
+

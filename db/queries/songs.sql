@@ -2,9 +2,11 @@
 SELECT * FROM songs
 WHERE id = $1 LIMIT 1;
 
--- name: ListSongs :many
+-- name: GetSongs :many
 SELECT * FROM songs
-ORDER BY id;
+ORDER BY id
+LIMIT $1
+OFFSET $2;
 
 -- name: CreateSong :one
 INSERT INTO songs (

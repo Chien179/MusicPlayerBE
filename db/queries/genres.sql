@@ -2,7 +2,7 @@
 SELECT * FROM genres
 WHERE id = $1 LIMIT 1;
 
--- name: ListGenres :many
+-- name: GetGenres :many
 SELECT * FROM genres
 ORDER BY id
 LIMIT $1

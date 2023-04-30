@@ -82,13 +82,20 @@ func (q *Queries) GetSong(ctx context.Context, id int64) (Song, error) {
 	return i, err
 }
 
-const listSongs = `-- name: ListSongs :many
+const getSongs = `-- name: GetSongs :many
 SELECT id, name, singer, image, file_url, duration, created_at FROM songs
 ORDER BY id
+LIMIT $1
+OFFSET $2
 `
 
-func (q *Queries) ListSongs(ctx context.Context) ([]Song, error) {
-	rows, err := q.db.QueryContext(ctx, listSongs)
+type GetSongsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetSongs(ctx context.Context, arg GetSongsParams) ([]Song, error) {
+	rows, err := q.db.QueryContext(ctx, getSongs, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

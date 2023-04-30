@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	AddSongToPlaylist(ctx context.Context, arg AddSongToPlaylistParams) (PlaylistsSong, error)
 	CreateGenre(ctx context.Context, arg CreateGenreParams) (Genre, error)
 	CreatePlaylist(ctx context.Context, arg CreatePlaylistParams) (Playlist, error)
 	CreatePlaylistSong(ctx context.Context, arg CreatePlaylistSongParams) (PlaylistsSong, error)
@@ -22,17 +23,19 @@ type Querier interface {
 	DeleteSongGenre(ctx context.Context, id int64) error
 	DeleteUser(ctx context.Context, id int64) error
 	GetGenre(ctx context.Context, id int64) (Genre, error)
-	GetPlaylist(ctx context.Context, id int64) (Playlist, error)
+	GetGenres(ctx context.Context, arg GetGenresParams) ([]Genre, error)
 	GetPlaylistSong(ctx context.Context, id int64) (PlaylistsSong, error)
 	GetSong(ctx context.Context, id int64) (Song, error)
 	GetSongGenre(ctx context.Context, id int64) (SongsGenre, error)
+	GetSongs(ctx context.Context, arg GetSongsParams) ([]Song, error)
 	GetUser(ctx context.Context, username string) (User, error)
-	ListGenres(ctx context.Context, arg ListGenresParams) ([]Genre, error)
-	ListPlaylists(ctx context.Context, arg ListPlaylistsParams) ([]Playlist, error)
+	GetUserPlaylist(ctx context.Context, id int64) (Playlist, error)
+	GetUserPlaylistSongs(ctx context.Context, playlistsID int64) ([]Song, error)
+	GetUserPlaylists(ctx context.Context, usersID int64) ([]Playlist, error)
 	ListPlaylistsSongs(ctx context.Context, arg ListPlaylistsSongsParams) ([]PlaylistsSong, error)
-	ListSongs(ctx context.Context) ([]Song, error)
 	ListSongsGenres(ctx context.Context, arg ListSongsGenresParams) ([]SongsGenre, error)
 	ListUsers(ctx context.Context) ([]User, error)
+	RemoveSongFromPlaylist(ctx context.Context, arg RemoveSongFromPlaylistParams) error
 	UpdatePlaylist(ctx context.Context, arg UpdatePlaylistParams) (Playlist, error)
 	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
