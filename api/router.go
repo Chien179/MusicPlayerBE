@@ -1,9 +1,12 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func (server *Server) setupRouter() {
 	router := gin.Default()
+	router.Use(CORSMiddleware())
 
 	// No-auth
 	router.POST("/register", server.register)

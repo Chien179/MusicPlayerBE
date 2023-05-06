@@ -15,7 +15,7 @@ CREATE TABLE "songs" (
   "singer" varchar NOT NULL,
   "image" varchar NOT NULL,
   "file_url" varchar NOT NULL,
-  "duration" timestamptz NOT NULL,
+  "duration" BIGSERIAL NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT 'now()'
 );
 
