@@ -13,6 +13,7 @@ func (server *Server) setupRouter() {
 	router.POST("/login", server.login)
 	router.GET("/songs", server.getSongs)
 	router.GET("/genres", server.getGenres)
+	router.POST("/songs", server.createSong)
 
 	// Require auth
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
@@ -24,8 +25,8 @@ func (server *Server) setupRouter() {
 	authRoutes.DELETE("/playlists/:id/songs/:song_id", server.removeSongFromPlaylist)
 
 	// Admin only
-	adminRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker), adminAuthorizeMiddleware)
-	adminRoutes.POST("/songs", server.createSong)
+	// adminRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker), adminAuthorizeMiddleware)
+	// adminRoutes.POST("/songs", server.createSong)
 
 	server.router = router
 }

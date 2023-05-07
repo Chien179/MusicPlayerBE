@@ -1,6 +1,7 @@
 package api
 
 import (
+	"mime/multipart"
 	"net/http"
 
 	db "github.com/Chien179/MusicPlayerBE/db/sqlc"
@@ -35,6 +36,62 @@ func (server *Server) getSongs(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, songs)
 }
 
-func (Server *Server) createSong(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, struct{}{})
+type createSongRequest struct {
+	Name     string                `form:"name" binding:"required"`
+	Singer   string                `form:"singer" binding:"required"`
+	Image    *multipart.FileHeader `form:"image" binding:"required"`
+	FileUrl  *multipart.FileHeader `form:"file" binding:"required"`
+	Duration int64                 `form:"duration" binding:"required,min=1"`
+}
+
+func (server *Server) createSong(ctx *gin.Context) {
+	var req createSongRequest
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	image, err := req.Image.Open()
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	file, err := req.FileUrl.Open()
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	imgUrl, err := server.uploader.FileUpload(image, "B2CDMusic/Image", server.config)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	fileUrl, err := server.uploader.FileUpload(file, "B2CDMusic/Music", server.config)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	song, err := server.store.CreateSong(ctx, db.CreateSongParams{
+		Name:     req.Name,
+		Singer:   req.Singer,
+		Image:    imgUrl,
+		FileUrl:  fileUrl,
+		Duration: req.Duration,
+	})
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, song)
 }

@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"time"
 )
 
 const createSong = `-- name: CreateSong :one
@@ -24,11 +23,11 @@ RETURNING id, name, singer, image, file_url, duration, created_at
 `
 
 type CreateSongParams struct {
-	Name     string    `json:"name"`
-	Singer   string    `json:"singer"`
-	Image    string    `json:"image"`
-	FileUrl  string    `json:"file_url"`
-	Duration time.Time `json:"duration"`
+	Name     string `json:"name"`
+	Singer   string `json:"singer"`
+	Image    string `json:"image"`
+	FileUrl  string `json:"file_url"`
+	Duration int64  `json:"duration"`
 }
 
 func (q *Queries) CreateSong(ctx context.Context, arg CreateSongParams) (Song, error) {
@@ -137,12 +136,12 @@ RETURNING id, name, singer, image, file_url, duration, created_at
 `
 
 type UpdateSongParams struct {
-	ID       int64     `json:"id"`
-	Name     string    `json:"name"`
-	Singer   string    `json:"singer"`
-	Image    string    `json:"image"`
-	FileUrl  string    `json:"file_url"`
-	Duration time.Time `json:"duration"`
+	ID       int64  `json:"id"`
+	Name     string `json:"name"`
+	Singer   string `json:"singer"`
+	Image    string `json:"image"`
+	FileUrl  string `json:"file_url"`
+	Duration int64  `json:"duration"`
 }
 
 func (q *Queries) UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error) {

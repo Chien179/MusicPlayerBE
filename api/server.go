@@ -15,6 +15,7 @@ type Server struct {
 	store      db.Store
 	tokenMaker token.Maker
 	router     *gin.Engine
+	uploader   util.MediaUpload
 }
 
 // NewServer creates a new server
@@ -29,6 +30,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		config:     config,
 		store:      store,
 		tokenMaker: tokenMaker,
+		uploader:   util.NewMediaUpload(),
 	}
 
 	server.setupRouter()

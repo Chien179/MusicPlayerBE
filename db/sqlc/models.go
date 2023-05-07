@@ -35,7 +35,7 @@ type Song struct {
 	Singer    string    `json:"singer"`
 	Image     string    `json:"image"`
 	FileUrl   string    `json:"file_url"`
-	Duration  time.Time `json:"duration"`
+	Duration  int64     `json:"duration"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
