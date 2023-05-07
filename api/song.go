@@ -40,7 +40,7 @@ type createSongRequest struct {
 	Name     string                `form:"name" binding:"required"`
 	Singer   string                `form:"singer" binding:"required"`
 	Image    *multipart.FileHeader `form:"image" binding:"required"`
-	FileUrl  *multipart.FileHeader `form:"file" binding:"required"`
+	File     *multipart.FileHeader `form:"file" binding:"required"`
 	Duration int64                 `form:"duration" binding:"required,min=1"`
 }
 
@@ -59,21 +59,21 @@ func (server *Server) createSong(ctx *gin.Context) {
 		return
 	}
 
-	file, err := req.FileUrl.Open()
+	file, err := req.File.Open()
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	imgUrl, err := server.uploader.FileUpload(image, "B2CDMusic/Image", server.config)
+	imgUrl, err := server.uploader.FileUpload(image, "B2CDMusic/Image")
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	fileUrl, err := server.uploader.FileUpload(file, "B2CDMusic/Music", server.config)
+	fileUrl, err := server.uploader.FileUpload(file, "B2CDMusic/Music")
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

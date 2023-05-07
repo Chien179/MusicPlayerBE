@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Server servers all HTTP request for Music APIs
+// Server serves all HTTP request for Music APIs
 type Server struct {
 	config     util.Config
 	store      db.Store
@@ -30,7 +30,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		config:     config,
 		store:      store,
 		tokenMaker: tokenMaker,
-		uploader:   util.NewMediaUpload(),
+		uploader:   util.NewMediaUpload(&config),
 	}
 
 	server.setupRouter()

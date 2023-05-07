@@ -10,17 +10,21 @@ import (
 )
 
 type MediaUpload interface {
-	FileUpload(file multipart.File, uploadPath string, config Config) (string, error)
+	FileUpload(file multipart.File, uploadPath string) (string, error)
 }
 
-type media struct{}
-
-func NewMediaUpload() MediaUpload {
-	return &media{}
+type media struct {
+	*Config
 }
 
-func (*media) FileUpload(file multipart.File, uploadPath string, config Config) (string, error) {
-	url, err := FileUploadHandler(file, uploadPath, config)
+func NewMediaUpload(config *Config) MediaUpload {
+	return &media{
+		Config: config,
+	}
+}
+
+func (m *media) FileUpload(file multipart.File, uploadPath string) (string, error) {
+	url, err := FileUploadHandler(file, uploadPath, m.Config)
 
 	if err != nil {
 		return "", err
@@ -29,8 +33,8 @@ func (*media) FileUpload(file multipart.File, uploadPath string, config Config) 
 	return url, nil
 }
 
-func FileUploadHandler(file interface{}, uploadPath string, config Config) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+func FileUploadHandler(file interface{}, uploadPath string, config *Config) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
 	cld, err := cloudinary.NewFromParams(config.CloudinaryCloudName, config.CloudinaryAPIKey, config.CloudinaryAPISecret)
