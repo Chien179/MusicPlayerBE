@@ -63,6 +63,53 @@ func (q *Queries) GetGenre(ctx context.Context, id int64) (Genre, error) {
 	return i, err
 }
 
+const getGenreSongs = `-- name: GetGenreSongs :many
+SELECT
+  s.id,
+  s.name,
+  s.singer,
+  s.image,
+  s.file_url,
+  s.duration,
+  s.created_at
+FROM
+  songs s
+  JOIN songs_genres sg ON sg.songs_id = s.id
+WHERE
+    genres_id = $1
+`
+
+func (q *Queries) GetGenreSongs(ctx context.Context, genresID int64) ([]Song, error) {
+	rows, err := q.db.QueryContext(ctx, getGenreSongs, genresID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Song{}
+	for rows.Next() {
+		var i Song
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Singer,
+			&i.Image,
+			&i.FileUrl,
+			&i.Duration,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGenres = `-- name: GetGenres :many
 SELECT id, name, image, created_at FROM genres
 ORDER BY id

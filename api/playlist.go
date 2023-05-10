@@ -25,10 +25,6 @@ func (server *Server) getUserPlaylists(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, playlists)
 }
 
-type playlistUri struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
-}
-
 type playlistDetailResponse struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`
@@ -38,7 +34,7 @@ type playlistDetailResponse struct {
 }
 
 func (server *Server) getUserPlaylistDetail(ctx *gin.Context) {
-	var req playlistUri
+	var req idURI
 
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 
@@ -199,7 +195,7 @@ type updatePlaylistRequest struct {
 }
 
 func (server *Server) updateUserPlaylist(ctx *gin.Context) {
-	var req playlistUri
+	var req idURI
 	var body updatePlaylistRequest
 
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
@@ -250,7 +246,7 @@ func (server *Server) updateUserPlaylist(ctx *gin.Context) {
 }
 
 func (server *Server) deleteUserPlaylist(ctx *gin.Context) {
-	var req playlistUri
+	var req idURI
 
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 

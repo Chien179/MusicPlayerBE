@@ -27,3 +27,18 @@ SET name = $2,
     image = $3
 WHERE id = $1
 RETURNING *;
+
+-- name: GetGenreSongs :many
+SELECT
+  s.id,
+  s.name,
+  s.singer,
+  s.image,
+  s.file_url,
+  s.duration,
+  s.created_at
+FROM
+  songs s
+  JOIN songs_genres sg ON sg.songs_id = s.id
+WHERE
+    genres_id = $1;

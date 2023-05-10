@@ -13,6 +13,7 @@ func (server *Server) setupRouter() {
 	router.POST("/login", server.login)
 	router.GET("/songs", server.getSongs)
 	router.GET("/genres", server.getGenres)
+	router.GET("/genres/:id", server.getGenre)
 
 	// Require auth
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
@@ -28,6 +29,8 @@ func (server *Server) setupRouter() {
 	adminRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker), adminAuthorizeMiddleware)
 	adminRoutes.POST("/songs", server.createSong)
 	adminRoutes.PUT("/songs/:id", server.updateSong)
+	adminRoutes.POST("/genres", server.createGenre)
+	adminRoutes.PUT("/genres/:id", server.updateGenre)
 
 	server.router = router
 }

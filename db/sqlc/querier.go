@@ -23,6 +23,7 @@ type Querier interface {
 	DeleteSongGenre(ctx context.Context, id int64) error
 	DeleteUser(ctx context.Context, id int64) error
 	GetGenre(ctx context.Context, id int64) (Genre, error)
+	GetGenreSongs(ctx context.Context, genresID int64) ([]Song, error)
 	GetGenres(ctx context.Context, arg GetGenresParams) ([]Genre, error)
 	GetPlaylistSong(ctx context.Context, id int64) (PlaylistsSong, error)
 	GetSong(ctx context.Context, id int64) (Song, error)

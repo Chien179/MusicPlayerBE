@@ -9,13 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type getSongsRequest struct {
-	Page  int32 `form:"page" binding:"required,min=1"`
-	Limit int32 `form:"limit" binding:"required,min=10,max=100"`
-}
-
 func (server *Server) getSongs(ctx *gin.Context) {
-	var req getSongsRequest
+	var req getPaginationRequest
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -93,10 +88,6 @@ func (server *Server) createSong(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, song)
 }
 
-type songUri struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
-}
-
 type updateSongRequest struct {
 	Name     string                `form:"name"`
 	Singer   string                `form:"singer"`
@@ -106,7 +97,7 @@ type updateSongRequest struct {
 }
 
 func (server *Server) updateSong(ctx *gin.Context) {
-	var req songUri
+	var req idURI
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -160,11 +151,7 @@ func (server *Server) updateSong(ctx *gin.Context) {
 		songUpdateReq.FileUrl = song.FileUrl
 	}
 
-	song, err = server.store.UpdateSong(ctx, songUpdateReq)
-
-	if isGetFieldError(err, ctx) {
-		return
-	}
+	song, _ = server.store.UpdateSong(ctx, songUpdateReq)
 
 	ctx.JSON(http.StatusOK, song)
 }
