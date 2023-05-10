@@ -26,10 +26,17 @@ WHERE id = $1;
 
 -- name: UpdateSong :one
 UPDATE songs
-SET name = $2,
-    singer = $3,
-    image = $4,
-    file_url = $5,
-    duration = $6
+SET name = COALESCE($2, name),
+    singer = COALESCE($3, singer),
+    image = COALESCE($4, image),
+    file_url = COALESCE($5, file_url),
+    duration = COALESCE($6, duration)
+WHERE id = $1
+RETURNING *;
+
+-- name: UpdateSongFile :one
+UPDATE songs
+SET file_url = $2,
+    image = $3
 WHERE id = $1
 RETURNING *;

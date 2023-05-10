@@ -10,7 +10,7 @@ import (
 )
 
 type MediaUpload interface {
-	FileUpload(file multipart.File, uploadPath string) (string, error)
+	FileUpload(file multipart.File, uploadPath string, fileName string) (string, error)
 }
 
 type media struct {
@@ -23,8 +23,8 @@ func NewMediaUpload(config *Config) MediaUpload {
 	}
 }
 
-func (m *media) FileUpload(file multipart.File, uploadPath string) (string, error) {
-	url, err := FileUploadHandler(file, uploadPath, m.Config)
+func (m *media) FileUpload(file multipart.File, uploadPath string, fileName string) (string, error) {
+	url, err := FileUploadHandler(file, uploadPath, fileName, m.Config)
 
 	if err != nil {
 		return "", err
@@ -33,7 +33,7 @@ func (m *media) FileUpload(file multipart.File, uploadPath string) (string, erro
 	return url, nil
 }
 
-func FileUploadHandler(file interface{}, uploadPath string, config *Config) (string, error) {
+func FileUploadHandler(file interface{}, uploadPath string, fileName string, config *Config) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
@@ -43,7 +43,7 @@ func FileUploadHandler(file interface{}, uploadPath string, config *Config) (str
 		return "", err
 	}
 
-	uploadParam, err := cld.Upload.Upload(ctx, file, uploader.UploadParams{Folder: uploadPath})
+	uploadParam, err := cld.Upload.Upload(ctx, file, uploader.UploadParams{Folder: uploadPath, PublicID: fileName})
 
 	if err != nil {
 		return "", err

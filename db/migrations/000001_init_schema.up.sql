@@ -62,9 +62,9 @@ CREATE INDEX ON "playlists_songs" ("songs_id", "playlists_id");
 
 ALTER TABLE "playlists" ADD FOREIGN KEY ("users_id") REFERENCES "users" ("id");
 
-ALTER TABLE "songs_genres" ADD FOREIGN KEY ("songs_id") REFERENCES "genres" ("id");
+ALTER TABLE "songs_genres" ADD FOREIGN KEY ("songs_id") REFERENCES "songs" ("id");
 
-ALTER TABLE "songs_genres" ADD FOREIGN KEY ("genres_id") REFERENCES "songs" ("id");
+ALTER TABLE "songs_genres" ADD FOREIGN KEY ("genres_id") REFERENCES "genres" ("id");
 
 ALTER TABLE "playlists_songs" ADD FOREIGN KEY ("playlists_id") REFERENCES "playlists" ("id") ON DELETE CASCADE;
 

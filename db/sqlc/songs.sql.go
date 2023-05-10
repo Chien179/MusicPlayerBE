@@ -126,11 +126,11 @@ func (q *Queries) GetSongs(ctx context.Context, arg GetSongsParams) ([]Song, err
 
 const updateSong = `-- name: UpdateSong :one
 UPDATE songs
-SET name = $2,
-    singer = $3,
-    image = $4,
-    file_url = $5,
-    duration = $6
+SET name = COALESCE($2, name),
+    singer = COALESCE($3, singer),
+    image = COALESCE($4, image),
+    file_url = COALESCE($5, file_url),
+    duration = COALESCE($6, duration)
 WHERE id = $1
 RETURNING id, name, singer, image, file_url, duration, created_at
 `
@@ -153,6 +153,35 @@ func (q *Queries) UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, e
 		arg.FileUrl,
 		arg.Duration,
 	)
+	var i Song
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Singer,
+		&i.Image,
+		&i.FileUrl,
+		&i.Duration,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const updateSongFile = `-- name: UpdateSongFile :one
+UPDATE songs
+SET file_url = $2,
+    image = $3
+WHERE id = $1
+RETURNING id, name, singer, image, file_url, duration, created_at
+`
+
+type UpdateSongFileParams struct {
+	ID      int64  `json:"id"`
+	FileUrl string `json:"file_url"`
+	Image   string `json:"image"`
+}
+
+func (q *Queries) UpdateSongFile(ctx context.Context, arg UpdateSongFileParams) (Song, error) {
+	row := q.db.QueryRowContext(ctx, updateSongFile, arg.ID, arg.FileUrl, arg.Image)
 	var i Song
 	err := row.Scan(
 		&i.ID,

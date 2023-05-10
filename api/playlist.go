@@ -1,7 +1,9 @@
 package api
 
 import (
+	"mime/multipart"
 	"net/http"
+	"strconv"
 	"time"
 
 	db "github.com/Chien179/MusicPlayerBE/db/sqlc"
@@ -177,13 +179,67 @@ func (server *Server) createUserPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	// Todo: image upload
-
 	playlist, err := server.store.CreatePlaylist(ctx, db.CreatePlaylistParams{
 		Name:    req.Name,
 		UsersID: authPayload.UserID,
 		Image:   "",
 	})
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, playlist)
+}
+
+type updatePlaylistRequest struct {
+	Name  string                `form:"name"`
+	Image *multipart.FileHeader `form:"image"`
+}
+
+func (server *Server) updateUserPlaylist(ctx *gin.Context) {
+	var req playlistUri
+	var body updatePlaylistRequest
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	if err := ctx.ShouldBind(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	playlist, err := server.store.GetUserPlaylist(ctx, req.ID)
+
+	if isGetFieldError(err, ctx) {
+		return
+	}
+
+	if !isForUser(playlist.UsersID, authPayload.UserID, ctx) {
+		return
+	}
+
+	updateReq := db.UpdatePlaylistParams{
+		ID:   playlist.ID,
+		Name: body.Name,
+	}
+
+	if body.Image != nil {
+		var imgUrl string
+
+		if imgUrl, err = server.uploadFile(ctx, body.Image, "B2CDMusic/Image/Playlists", strconv.Itoa(int(playlist.ID))); err != nil {
+			return
+		}
+
+		updateReq.Image = imgUrl
+	}
+
+	playlist, err = server.store.UpdatePlaylist(ctx, updateReq)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

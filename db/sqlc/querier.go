@@ -38,6 +38,7 @@ type Querier interface {
 	RemoveSongFromPlaylist(ctx context.Context, arg RemoveSongFromPlaylistParams) error
 	UpdatePlaylist(ctx context.Context, arg UpdatePlaylistParams) (Playlist, error)
 	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
+	UpdateSongFile(ctx context.Context, arg UpdateSongFileParams) (Song, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	Updategenre(ctx context.Context, arg UpdategenreParams) (Genre, error)
 }

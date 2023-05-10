@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,4 +31,22 @@ func isGetFieldError(err error, ctx *gin.Context) bool {
 	}
 
 	return false
+}
+
+func (server *Server) uploadFile(ctx *gin.Context, fileHeader *multipart.FileHeader, filePath string, fileName string) (string, error) {
+	file, err := fileHeader.Open()
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return "", err
+	}
+
+	fileUrl, err := server.uploader.FileUpload(file, "B2CDMusic/Image/Music", fileName)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return "", err
+	}
+
+	return fileUrl, nil
 }
