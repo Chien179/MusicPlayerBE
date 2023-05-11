@@ -9,7 +9,6 @@ import (
 	db "github.com/Chien179/MusicPlayerBE/db/sqlc"
 	"github.com/Chien179/MusicPlayerBE/token"
 	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
 )
 
 func (server *Server) getUserPlaylists(ctx *gin.Context) {
@@ -107,15 +106,7 @@ func (server *Server) addSongToPlaylist(ctx *gin.Context) {
 		SongsID:     song.ID,
 	})
 
-	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name() {
-			case "foreign_key_violation", "unique_violation":
-				ctx.JSON(http.StatusForbidden, errorResponse(err))
-				return
-			}
-		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	if isViolationError(err, ctx) {
 		return
 	}
 

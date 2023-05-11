@@ -59,7 +59,7 @@ func (server *Server) createSong(ctx *gin.Context) {
 		Genres:   req.Genres,
 	})
 
-	if isGetFieldError(err, ctx) {
+	if isViolationError(err, ctx) {
 		return
 	}
 
@@ -155,7 +155,7 @@ func (server *Server) updateSong(ctx *gin.Context) {
 
 	songtx, err := server.store.UpdateSongTx(ctx, songUpdateReq)
 
-	if isGetFieldError(err, ctx) {
+	if isViolationError(err, ctx) {
 		return
 	}
 

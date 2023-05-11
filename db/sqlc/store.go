@@ -85,15 +85,9 @@ func (store *SQLStore) CreateSongTx(ctx context.Context, arg CreateSongTxParams)
 		song.CreatedAt = res.CreatedAt
 
 		for i := 0; i < len(arg.Genres); i++ {
-			genre, err := q.GetGenre(ctx, arg.Genres[i])
-
-			if err != nil {
-				return err
-			}
-
 			_, err = q.CreateSongGenre(ctx, CreateSongGenreParams{
 				SongsID:  res.ID,
-				GenresID: genre.ID,
+				GenresID: arg.Genres[i],
 			})
 
 			if err != nil {
@@ -163,15 +157,9 @@ func (store *SQLStore) UpdateSongTx(ctx context.Context, arg UpdateSongTxParams)
 
 		for i := 0; i < len(arg.Genres); i++ {
 			if !includes(arg.Genres[i], genres) {
-				genre, err := q.GetGenre(ctx, arg.Genres[i])
-
-				if err != nil {
-					return err
-				}
-
 				_, err = q.CreateSongGenre(ctx, CreateSongGenreParams{
 					SongsID:  res.ID,
-					GenresID: genre.ID,
+					GenresID: arg.Genres[i],
 				})
 
 				if err != nil {

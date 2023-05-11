@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 func isForUser(UserID int64, reqUserID int64, ctx *gin.Context) bool {
@@ -25,6 +26,22 @@ func isGetFieldError(err error, ctx *gin.Context) bool {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return true
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return true
+	}
+
+	return false
+}
+
+func isViolationError(err error, ctx *gin.Context) bool {
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "foreign_key_violation", "unique_violation":
+				ctx.JSON(http.StatusBadRequest, errorResponse(err))
+				return true
+			}
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return true
