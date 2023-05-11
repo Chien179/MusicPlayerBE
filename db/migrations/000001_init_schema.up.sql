@@ -72,3 +72,5 @@ ALTER TABLE "playlists_songs" ADD FOREIGN KEY ("songs_id") REFERENCES "songs" ("
 
 ALTER TABLE "playlists_songs" ADD CONSTRAINT "song_playlist_key" UNIQUE ("playlists_id", "songs_id");
 
+ALTER TABLE "songs_genres" ADD CONSTRAINT "song_genre_key" UNIQUE ("genres_id", "songs_id");
+

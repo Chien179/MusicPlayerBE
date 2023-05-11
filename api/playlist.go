@@ -162,7 +162,8 @@ func (server *Server) removeSongFromPlaylist(ctx *gin.Context) {
 }
 
 type createPlaylistRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name  string `json:"name" binding:"required"`
+	Image string `json:"image" binding:"required"`
 }
 
 func (server *Server) createUserPlaylist(ctx *gin.Context) {
@@ -178,7 +179,7 @@ func (server *Server) createUserPlaylist(ctx *gin.Context) {
 	playlist, err := server.store.CreatePlaylist(ctx, db.CreatePlaylistParams{
 		Name:    req.Name,
 		UsersID: authPayload.UserID,
-		Image:   "",
+		Image:   req.Image,
 	})
 
 	if err != nil {

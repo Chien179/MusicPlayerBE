@@ -41,7 +41,7 @@ func (server *Server) uploadFile(ctx *gin.Context, fileHeader *multipart.FileHea
 		return "", err
 	}
 
-	fileUrl, err := server.uploader.FileUpload(file, "B2CDMusic/Image/Music", fileName)
+	fileUrl, err := server.uploader.FileUpload(file, filePath, fileName)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
