@@ -16,14 +16,19 @@ func (server *Server) setupRouter() {
 	router.GET("/genres/:id", server.getGenre)
 
 	// Require auth
-	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
-	authRoutes.GET("/playlists", server.getUserPlaylists)
-	authRoutes.GET("/playlists/:id", server.getUserPlaylistDetail)
-	authRoutes.POST("/playlists", server.createUserPlaylist)
-	authRoutes.PUT("/playlists/:id", server.updateUserPlaylist)
-	authRoutes.DELETE("/playlists/:id", server.deleteUserPlaylist)
-	authRoutes.POST("/playlists/:id/songs/:song_id", server.addSongToPlaylist)
-	authRoutes.DELETE("/playlists/:id/songs/:song_id", server.removeSongFromPlaylist)
+	authRoutes := router.Group("/playlists").Use(authMiddleware(server.tokenMaker))
+	authRoutes.GET("/", server.getUserPlaylists)
+	authRoutes.GET("/:id", server.getUserPlaylistDetail)
+	authRoutes.POST("/", server.createUserPlaylist)
+	authRoutes.PUT("/:id", server.updateUserPlaylist)
+	authRoutes.DELETE("/:id", server.deleteUserPlaylist)
+	authRoutes.POST("/:id/songs/:song_id", server.addSongToPlaylist)
+	authRoutes.DELETE("/:id/songs/:song_id", server.removeSongFromPlaylist)
+
+	userRoutes := router.Group("/user").Use(authMiddleware(server.tokenMaker))
+	userRoutes.GET("/", server.getUser)
+	userRoutes.PUT("/", server.updateUser)
+	userRoutes.DELETE("/", server.deleteUser)
 
 	// Admin only
 	adminRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker), adminAuthorizeMiddleware)

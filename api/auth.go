@@ -6,6 +6,7 @@ import (
 	"time"
 
 	db "github.com/Chien179/MusicPlayerBE/db/sqlc"
+	"github.com/Chien179/MusicPlayerBE/token"
 	"github.com/Chien179/MusicPlayerBE/util"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -137,4 +138,92 @@ func (server *Server) login(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, res)
+}
+
+func (server *Server) getUser(ctx *gin.Context) {
+	authPayLoad := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	user, err := server.store.GetUser(ctx, authPayLoad.Username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newUserResponse(user))
+}
+
+type updateUserRequest struct {
+	Fullname string `json:"full_name"`
+	Email    string `json:"email"`
+	Image    string `json:"image"`
+	Password string `json:"password"`
+}
+
+func (server *Server) updateUser(ctx *gin.Context) {
+	var req updateUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	authPayLoad := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	arg := db.UpdateUserParams{
+		ID: authPayLoad.UserID,
+		FullName: sql.NullString{
+			String: req.Fullname,
+			Valid:  req.Fullname != "",
+		},
+		Email: sql.NullString{
+			String: req.Email,
+			Valid:  req.Email != "",
+		},
+		Image: sql.NullString{
+			String: req.Image,
+			Valid:  req.Image != "",
+		},
+	}
+
+	if req.Password != "" {
+		hashedPassword, err := util.HashPassword(req.Password)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		arg.Password = sql.NullString{
+			String: hashedPassword,
+			Valid:  true,
+		}
+	}
+
+	user, err := server.store.UpdateUser(ctx, arg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	rsp := newUserResponse(user)
+	ctx.JSON(http.StatusOK, rsp)
+}
+
+func (server *Server) deleteUser(ctx *gin.Context) {
+	authPayLoad := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	err := server.store.DeleteUser(ctx, authPayLoad.UserID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, "User deleted successfully")
 }
