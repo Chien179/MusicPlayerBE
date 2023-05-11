@@ -3,10 +3,9 @@ SELECT * FROM songs_genres
 WHERE id = $1 LIMIT 1;
 
 -- name: ListSongsGenres :many
-SELECT * FROM songs_genres
-ORDER BY id
-LIMIT $1
-OFFSET $2;
+SELECT genres_id FROM songs_genres
+WHERE songs_id = $1
+ORDER BY id;
 
 -- name: CreateSongGenre :one
 INSERT INTO songs_genres (
@@ -19,4 +18,5 @@ RETURNING *;
 
 -- name: DeleteSongGenre :exec
 DELETE FROM songs_genres
-WHERE id = $1;
+WHERE genres_id = $1
+AND songs_id = $2;

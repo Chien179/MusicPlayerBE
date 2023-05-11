@@ -20,7 +20,7 @@ type Querier interface {
 	DeletePlaylist(ctx context.Context, id int64) error
 	DeletePlaylistSong(ctx context.Context, id int64) error
 	DeleteSong(ctx context.Context, id int64) error
-	DeleteSongGenre(ctx context.Context, id int64) error
+	DeleteSongGenre(ctx context.Context, arg DeleteSongGenreParams) error
 	DeleteUser(ctx context.Context, id int64) error
 	GetGenre(ctx context.Context, id int64) (Genre, error)
 	GetGenreSongs(ctx context.Context, genresID int64) ([]Song, error)
@@ -34,7 +34,7 @@ type Querier interface {
 	GetUserPlaylistSongs(ctx context.Context, playlistsID int64) ([]Song, error)
 	GetUserPlaylists(ctx context.Context, usersID int64) ([]Playlist, error)
 	ListPlaylistsSongs(ctx context.Context, arg ListPlaylistsSongsParams) ([]PlaylistsSong, error)
-	ListSongsGenres(ctx context.Context, arg ListSongsGenresParams) ([]SongsGenre, error)
+	ListSongsGenres(ctx context.Context, songsID int64) ([]int64, error)
 	ListUsers(ctx context.Context) ([]User, error)
 	RemoveSongFromPlaylist(ctx context.Context, arg RemoveSongFromPlaylistParams) error
 	UpdatePlaylist(ctx context.Context, arg UpdatePlaylistParams) (Playlist, error)

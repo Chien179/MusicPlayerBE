@@ -94,6 +94,7 @@ type updateSongRequest struct {
 	Image    *multipart.FileHeader `form:"image"`
 	File     *multipart.FileHeader `form:"file"`
 	Duration int64                 `form:"duration"`
+	Genres   []int64               `form:"genres"`
 }
 
 func (server *Server) updateSong(ctx *gin.Context) {
@@ -119,11 +120,12 @@ func (server *Server) updateSong(ctx *gin.Context) {
 	}
 
 	// update song req
-	songUpdateReq := db.UpdateSongParams{
+	songUpdateReq := db.UpdateSongTxParams{
 		ID:       song.ID,
 		Name:     body.Name,
 		Duration: body.Duration,
 		Singer:   body.Singer,
+		Genres:   body.Genres,
 	}
 
 	// check if image file exists, upload new one to cloud and set to update request
@@ -151,7 +153,11 @@ func (server *Server) updateSong(ctx *gin.Context) {
 		songUpdateReq.FileUrl = song.FileUrl
 	}
 
-	song, _ = server.store.UpdateSong(ctx, songUpdateReq)
+	songtx, err := server.store.UpdateSongTx(ctx, songUpdateReq)
 
-	ctx.JSON(http.StatusOK, song)
+	if isGetFieldError(err, ctx) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, songtx)
 }

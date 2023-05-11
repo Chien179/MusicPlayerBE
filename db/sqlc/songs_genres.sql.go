@@ -33,11 +33,17 @@ func (q *Queries) CreateSongGenre(ctx context.Context, arg CreateSongGenreParams
 
 const deleteSongGenre = `-- name: DeleteSongGenre :exec
 DELETE FROM songs_genres
-WHERE id = $1
+WHERE genres_id = $1
+AND songs_id = $2
 `
 
-func (q *Queries) DeleteSongGenre(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteSongGenre, id)
+type DeleteSongGenreParams struct {
+	GenresID int64 `json:"genres_id"`
+	SongsID  int64 `json:"songs_id"`
+}
+
+func (q *Queries) DeleteSongGenre(ctx context.Context, arg DeleteSongGenreParams) error {
+	_, err := q.db.ExecContext(ctx, deleteSongGenre, arg.GenresID, arg.SongsID)
 	return err
 }
 
@@ -54,30 +60,24 @@ func (q *Queries) GetSongGenre(ctx context.Context, id int64) (SongsGenre, error
 }
 
 const listSongsGenres = `-- name: ListSongsGenres :many
-SELECT id, songs_id, genres_id FROM songs_genres
+SELECT genres_id FROM songs_genres
+WHERE songs_id = $1
 ORDER BY id
-LIMIT $1
-OFFSET $2
 `
 
-type ListSongsGenresParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-func (q *Queries) ListSongsGenres(ctx context.Context, arg ListSongsGenresParams) ([]SongsGenre, error) {
-	rows, err := q.db.QueryContext(ctx, listSongsGenres, arg.Limit, arg.Offset)
+func (q *Queries) ListSongsGenres(ctx context.Context, songsID int64) ([]int64, error) {
+	rows, err := q.db.QueryContext(ctx, listSongsGenres, songsID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []SongsGenre{}
+	items := []int64{}
 	for rows.Next() {
-		var i SongsGenre
-		if err := rows.Scan(&i.ID, &i.SongsID, &i.GenresID); err != nil {
+		var genres_id int64
+		if err := rows.Scan(&genres_id); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, genres_id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
