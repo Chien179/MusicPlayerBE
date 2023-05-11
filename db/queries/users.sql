@@ -25,9 +25,9 @@ WHERE id = $1;
 
 -- name: UpdateUser :one
 UPDATE users
-SET full_name = $2,
-    email = $3,
-    password = $4,
-    image = $5
-WHERE id = $1
+SET full_name = COALESCE(sqlc.narg(full_name), full_name),
+    email = COALESCE(sqlc.narg(email), email),
+    password = COALESCE(sqlc.narg(password), password),
+    image = COALESCE(sqlc.narg(image), image)
+WHERE id = sqlc.arg(id)
 RETURNING *;
