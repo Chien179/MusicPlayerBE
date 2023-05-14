@@ -57,3 +57,39 @@ RETURNING *;
 DELETE FROM playlists_songs
 WHERE playlists_id = $1 
 AND songs_id = $2;
+
+-- name: GetPlaylistSongWithOffset :one
+SELECT
+  s.id,
+  s.name,
+  s.singer,
+  s.image,
+  s.file_url,
+  s.duration,
+  s.created_at
+FROM
+  songs s
+  JOIN playlists_songs ps ON ps.songs_id = s.id
+WHERE
+  playlists_id = $1
+LIMIT 1
+OFFSET $2;
+
+-- name: GetRandomPlaylistSong :one
+SELECT
+  s.id,
+  s.name,
+  s.singer,
+  s.image,
+  s.file_url,
+  s.duration,
+  s.created_at
+FROM
+  songs s
+  JOIN playlists_songs ps ON ps.songs_id = s.id
+WHERE
+  playlists_id = $1
+AND
+  s.id != $2
+ORDER BY RANDOM()
+LIMIT 1;

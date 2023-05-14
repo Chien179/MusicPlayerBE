@@ -71,6 +71,84 @@ func (q *Queries) DeletePlaylist(ctx context.Context, id int64) error {
 	return err
 }
 
+const getPlaylistSongWithOffset = `-- name: GetPlaylistSongWithOffset :one
+SELECT
+  s.id,
+  s.name,
+  s.singer,
+  s.image,
+  s.file_url,
+  s.duration,
+  s.created_at
+FROM
+  songs s
+  JOIN playlists_songs ps ON ps.songs_id = s.id
+WHERE
+  playlists_id = $1
+LIMIT 1
+OFFSET $2
+`
+
+type GetPlaylistSongWithOffsetParams struct {
+	PlaylistsID int64 `json:"playlists_id"`
+	Offset      int32 `json:"offset"`
+}
+
+func (q *Queries) GetPlaylistSongWithOffset(ctx context.Context, arg GetPlaylistSongWithOffsetParams) (Song, error) {
+	row := q.db.QueryRowContext(ctx, getPlaylistSongWithOffset, arg.PlaylistsID, arg.Offset)
+	var i Song
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Singer,
+		&i.Image,
+		&i.FileUrl,
+		&i.Duration,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getRandomPlaylistSong = `-- name: GetRandomPlaylistSong :one
+SELECT
+  s.id,
+  s.name,
+  s.singer,
+  s.image,
+  s.file_url,
+  s.duration,
+  s.created_at
+FROM
+  songs s
+  JOIN playlists_songs ps ON ps.songs_id = s.id
+WHERE
+  playlists_id = $1
+AND
+  s.id != $2
+ORDER BY RANDOM()
+LIMIT 1
+`
+
+type GetRandomPlaylistSongParams struct {
+	PlaylistsID int64 `json:"playlists_id"`
+	ID          int64 `json:"id"`
+}
+
+func (q *Queries) GetRandomPlaylistSong(ctx context.Context, arg GetRandomPlaylistSongParams) (Song, error) {
+	row := q.db.QueryRowContext(ctx, getRandomPlaylistSong, arg.PlaylistsID, arg.ID)
+	var i Song
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Singer,
+		&i.Image,
+		&i.FileUrl,
+		&i.Duration,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getUserPlaylist = `-- name: GetUserPlaylist :one
 SELECT id, users_id, name, image, created_at FROM playlists
 WHERE id = $1
@@ -104,6 +182,7 @@ FROM
   JOIN playlists_songs ps ON ps.songs_id = s.id
 WHERE
     playlists_id = $1
+ORDER BY s.created_at
 `
 
 func (q *Queries) GetUserPlaylistSongs(ctx context.Context, playlistsID int64) ([]Song, error) {

@@ -8,3 +8,7 @@ type getPaginationRequest struct {
 type idURI struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
+
+type getPrevOrNextSongRequest struct {
+	Direction string `form:"direction" binding:"required,direction"`
+}

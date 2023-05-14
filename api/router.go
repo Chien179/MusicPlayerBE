@@ -12,6 +12,8 @@ func (server *Server) setupRouter() {
 	router.POST("/register", server.register)
 	router.POST("/login", server.login)
 	router.GET("/songs", server.getSongs)
+	router.GET("/songs/index/:index", server.getPrevOrNextSong)
+	router.GET("/songs/shuffe/:id", server.getSongShuffle)
 	router.GET("/genres", server.getGenres)
 	router.GET("/genres/:id", server.getGenre)
 
@@ -19,6 +21,8 @@ func (server *Server) setupRouter() {
 	authRoutes := router.Group("/playlists").Use(authMiddleware(server.tokenMaker))
 	authRoutes.GET("", server.getUserPlaylists)
 	authRoutes.GET("/:id", server.getUserPlaylistDetail)
+	authRoutes.GET("/:id/songs/index/:index", server.getPrevOrNextPlaylistSong)
+	authRoutes.GET("/:id/songs/shuffle/:song_id", server.getPlaylistSongShuffle)
 	authRoutes.POST("", server.createUserPlaylist)
 	authRoutes.PUT("/:id", server.updateUserPlaylist)
 	authRoutes.DELETE("/:id", server.deleteUserPlaylist)

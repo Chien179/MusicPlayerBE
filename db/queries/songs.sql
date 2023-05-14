@@ -8,6 +8,12 @@ ORDER BY id
 LIMIT $1
 OFFSET $2;
 
+-- name: GetSongWithOffset :one
+SELECT * FROM songs
+ORDER BY id
+LIMIT 1
+OFFSET $1;
+
 -- name: CreateSong :one
 INSERT INTO songs (
   name,
@@ -40,3 +46,6 @@ SET file_url = $2,
     image = $3
 WHERE id = $1
 RETURNING *;
+
+-- name: GetRandomSong :one
+SELECT * FROM songs s WHERE s.id != $1 ORDER BY RANDOM() LIMIT 1;

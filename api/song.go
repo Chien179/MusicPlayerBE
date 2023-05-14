@@ -161,3 +161,63 @@ func (server *Server) updateSong(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, songtx)
 }
+
+type getPrevOrNextSongURI struct {
+	Index *int32 `uri:"index" binding:"required,min=0"`
+}
+
+func (server *Server) getPrevOrNextSong(ctx *gin.Context) {
+	var req getPrevOrNextSongRequest
+	var reqURI getPrevOrNextSongURI
+
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	if err := ctx.ShouldBindUri(&reqURI); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	var song db.Song
+	var err error
+	var offset int32
+
+	if req.Direction == "prev" {
+		if *reqURI.Index == 0 {
+			offset = 0
+		} else {
+			offset = *reqURI.Index - 1
+		}
+	} else {
+		offset = *reqURI.Index + 1
+	}
+
+	song, err = server.store.GetSongWithOffset(ctx, offset)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, song)
+}
+
+func (server *Server) getSongShuffle(ctx *gin.Context) {
+	var req idURI
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	song, err := server.store.GetRandomSong(ctx, req.ID)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, song)
+}

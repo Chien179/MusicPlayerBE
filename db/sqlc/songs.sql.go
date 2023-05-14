@@ -61,6 +61,25 @@ func (q *Queries) DeleteSong(ctx context.Context, id int64) error {
 	return err
 }
 
+const getRandomSong = `-- name: GetRandomSong :one
+SELECT id, name, singer, image, file_url, duration, created_at FROM songs s WHERE s.id != $1 ORDER BY RANDOM() LIMIT 1
+`
+
+func (q *Queries) GetRandomSong(ctx context.Context, id int64) (Song, error) {
+	row := q.db.QueryRowContext(ctx, getRandomSong, id)
+	var i Song
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Singer,
+		&i.Image,
+		&i.FileUrl,
+		&i.Duration,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getSong = `-- name: GetSong :one
 SELECT id, name, singer, image, file_url, duration, created_at FROM songs
 WHERE id = $1 LIMIT 1
@@ -68,6 +87,28 @@ WHERE id = $1 LIMIT 1
 
 func (q *Queries) GetSong(ctx context.Context, id int64) (Song, error) {
 	row := q.db.QueryRowContext(ctx, getSong, id)
+	var i Song
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Singer,
+		&i.Image,
+		&i.FileUrl,
+		&i.Duration,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getSongWithOffset = `-- name: GetSongWithOffset :one
+SELECT id, name, singer, image, file_url, duration, created_at FROM songs
+ORDER BY id
+LIMIT 1
+OFFSET $1
+`
+
+func (q *Queries) GetSongWithOffset(ctx context.Context, offset int32) (Song, error) {
+	row := q.db.QueryRowContext(ctx, getSongWithOffset, offset)
 	var i Song
 	err := row.Scan(
 		&i.ID,

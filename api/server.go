@@ -7,6 +7,8 @@ import (
 	"github.com/Chien179/MusicPlayerBE/token"
 	"github.com/Chien179/MusicPlayerBE/util"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 // Server serves all HTTP request for Music APIs
@@ -31,6 +33,10 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		store:      store,
 		tokenMaker: tokenMaker,
 		uploader:   util.NewMediaUpload(&config),
+	}
+
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("direction", validDirection)
 	}
 
 	server.setupRouter()
