@@ -225,6 +225,8 @@ func (server *Server) updateUserPlaylist(ctx *gin.Context) {
 		}
 
 		updateReq.Image = imgUrl
+	} else {
+		updateReq.Image = playlist.Image
 	}
 
 	playlist, err = server.store.UpdatePlaylist(ctx, updateReq)
