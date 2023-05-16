@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=music_player
+    ports:
+      - "5432:5432"
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      - DB_SOURCE=postgresql://root:123456@postgres:5432/music_player?sslmode=disable
+    depends_on:
+      - postgres
+    entrypoint: ["sh", "/app/wait-for", "postgres:5432", "--", "/app/main"]
