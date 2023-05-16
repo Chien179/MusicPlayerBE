@@ -65,13 +65,7 @@ func (q *Queries) GetGenre(ctx context.Context, id int64) (Genre, error) {
 
 const getGenreSongs = `-- name: GetGenreSongs :many
 SELECT
-  s.id,
-  s.name,
-  s.singer,
-  s.image,
-  s.file_url,
-  s.duration,
-  s.created_at
+  s.id, s.name, s.singer, s.image, s.file_url, s.duration, s.created_at
 FROM
   songs s
   JOIN songs_genres sg ON sg.songs_id = s.id

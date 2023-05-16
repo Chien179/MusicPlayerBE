@@ -13,7 +13,7 @@ func (server *Server) setupRouter() {
 	router.POST("/login", server.login)
 	router.GET("/songs", server.getSongs)
 	router.GET("/songs/index/:index", server.getPrevOrNextSong)
-	router.GET("/songs/shuffe/:id", server.getSongShuffle)
+	router.GET("/songs/shuffle/:id", server.getSongShuffle)
 	router.GET("/genres", server.getGenres)
 	router.GET("/genres/:id", server.getGenre)
 

@@ -26,18 +26,14 @@ RETURNING *;
 
 -- name: GetUserPlaylistSongs :many
 SELECT
-  s.id,
-  s.name,
-  s.singer,
-  s.image,
-  s.file_url,
-  s.duration,
-  s.created_at
+  s.*
 FROM
-  songs s
-  JOIN playlists_songs ps ON ps.songs_id = s.id
+  playlists_songs ps
+  JOIN songs s ON ps.songs_id = s.id
 WHERE
-    playlists_id = $1;
+  playlists_id = $1
+ORDER BY 
+  ps.id ASC;
 
 -- name: GetUserPlaylist :one
 SELECT * FROM playlists
@@ -60,13 +56,7 @@ AND songs_id = $2;
 
 -- name: GetPlaylistSongWithOffset :one
 SELECT
-  s.id,
-  s.name,
-  s.singer,
-  s.image,
-  s.file_url,
-  s.duration,
-  s.created_at
+  s.*
 FROM
   songs s
   JOIN playlists_songs ps ON ps.songs_id = s.id
@@ -77,13 +67,7 @@ OFFSET $2;
 
 -- name: GetRandomPlaylistSong :one
 SELECT
-  s.id,
-  s.name,
-  s.singer,
-  s.image,
-  s.file_url,
-  s.duration,
-  s.created_at
+  s.*
 FROM
   songs s
   JOIN playlists_songs ps ON ps.songs_id = s.id

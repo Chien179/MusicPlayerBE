@@ -30,13 +30,7 @@ RETURNING *;
 
 -- name: GetGenreSongs :many
 SELECT
-  s.id,
-  s.name,
-  s.singer,
-  s.image,
-  s.file_url,
-  s.duration,
-  s.created_at
+  s.*
 FROM
   songs s
   JOIN songs_genres sg ON sg.songs_id = s.id

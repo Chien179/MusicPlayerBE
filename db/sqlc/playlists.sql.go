@@ -73,13 +73,7 @@ func (q *Queries) DeletePlaylist(ctx context.Context, id int64) error {
 
 const getPlaylistSongWithOffset = `-- name: GetPlaylistSongWithOffset :one
 SELECT
-  s.id,
-  s.name,
-  s.singer,
-  s.image,
-  s.file_url,
-  s.duration,
-  s.created_at
+  s.id, s.name, s.singer, s.image, s.file_url, s.duration, s.created_at
 FROM
   songs s
   JOIN playlists_songs ps ON ps.songs_id = s.id
@@ -111,13 +105,7 @@ func (q *Queries) GetPlaylistSongWithOffset(ctx context.Context, arg GetPlaylist
 
 const getRandomPlaylistSong = `-- name: GetRandomPlaylistSong :one
 SELECT
-  s.id,
-  s.name,
-  s.singer,
-  s.image,
-  s.file_url,
-  s.duration,
-  s.created_at
+  s.id, s.name, s.singer, s.image, s.file_url, s.duration, s.created_at
 FROM
   songs s
   JOIN playlists_songs ps ON ps.songs_id = s.id
@@ -170,19 +158,14 @@ func (q *Queries) GetUserPlaylist(ctx context.Context, id int64) (Playlist, erro
 
 const getUserPlaylistSongs = `-- name: GetUserPlaylistSongs :many
 SELECT
-  s.id,
-  s.name,
-  s.singer,
-  s.image,
-  s.file_url,
-  s.duration,
-  s.created_at
+  s.id, s.name, s.singer, s.image, s.file_url, s.duration, s.created_at
 FROM
-  songs s
-  JOIN playlists_songs ps ON ps.songs_id = s.id
+  playlists_songs ps
+  JOIN songs s ON ps.songs_id = s.id
 WHERE
-    playlists_id = $1
-ORDER BY s.created_at
+  playlists_id = $1
+ORDER BY 
+  ps.id ASC
 `
 
 func (q *Queries) GetUserPlaylistSongs(ctx context.Context, playlistsID int64) ([]Song, error) {
