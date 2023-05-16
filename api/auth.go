@@ -2,7 +2,9 @@ package api
 
 import (
 	"database/sql"
+	"mime/multipart"
 	"net/http"
+	"strconv"
 	"time"
 
 	db "github.com/Chien179/MusicPlayerBE/db/sqlc"
@@ -156,15 +158,15 @@ func (server *Server) getUser(ctx *gin.Context) {
 }
 
 type updateUserRequest struct {
-	Fullname string `json:"full_name"`
-	Email    string `json:"email"`
-	Image    string `json:"image"`
-	Password string `json:"password"`
+	Fullname string                `form:"full_name"`
+	Email    string                `form:"email"`
+	Image    *multipart.FileHeader `form:"image"`
+	Password string                `form:"password"`
 }
 
 func (server *Server) updateUser(ctx *gin.Context) {
 	var req updateUserRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -180,10 +182,18 @@ func (server *Server) updateUser(ctx *gin.Context) {
 			String: req.Email,
 			Valid:  req.Email != "",
 		},
-		Image: sql.NullString{
-			String: req.Image,
-			Valid:  req.Image != "",
-		},
+	}
+
+	if req.Image != nil {
+		imgUrl, err := server.uploadFile(ctx, req.Image, "B2CDMusic/Image/users", strconv.Itoa(int(authPayLoad.UserID)))
+		if err != nil {
+			return
+		}
+
+		arg.Image = sql.NullString{
+			String: imgUrl,
+			Valid:  true,
+		}
 	}
 
 	if req.Password != "" {

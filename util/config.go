@@ -15,6 +15,7 @@ type Config struct {
 	CloudinaryCloudName string        `mapstructure:"CLOUDINARY_CLOUD_NAME"`
 	CloudinaryAPIKey    string        `mapstructure:"CLOUDINARY_API_KEY"`
 	CloudinaryAPISecret string        `mapstructure:"CLOUDINARY_API_SECRET"`
+	MigrationURL        string        `mapstructure:"MIGRATION_URL"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
