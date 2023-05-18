@@ -31,6 +31,7 @@ type userRepsonse struct {
 	FullName  string    `json:"full_name"`
 	Email     string    `json:"email"`
 	Image     string    `json:"image"`
+	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -41,6 +42,7 @@ func newUserResponse(user db.User) userRepsonse {
 		FullName:  user.FullName,
 		Email:     user.Email,
 		Image:     user.Image,
+		Role:      user.Role,
 		CreatedAt: user.CreatedAt,
 	}
 }
