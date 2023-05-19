@@ -40,7 +40,7 @@ func (server *Server) setupRouter() {
 	adminRoutes.PUT("/songs/:id", server.updateSong)
 	adminRoutes.POST("/genres", server.createGenre)
 	adminRoutes.PUT("/genres/:id", server.updateGenre)
-	userRoutes.GET("/users", server.getUsers)
+	adminRoutes.GET("/users", server.getUsers)
 
 	server.router = router
 }
