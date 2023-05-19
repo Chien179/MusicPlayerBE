@@ -5,7 +5,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
-	"time"
 
 	db "github.com/Chien179/MusicPlayerBE/db/sqlc"
 	"github.com/Chien179/MusicPlayerBE/token"
@@ -23,28 +22,6 @@ type registerRequest struct {
 	Username string `json:"username" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`
 	Email    string `json:"email" binding:"required,email"`
-}
-
-type userRepsonse struct {
-	ID        int64     `json:"id"`
-	Username  string    `json:"username"`
-	FullName  string    `json:"full_name"`
-	Email     string    `json:"email"`
-	Image     string    `json:"image"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-func newUserResponse(user db.User) userRepsonse {
-	return userRepsonse{
-		ID:        user.ID,
-		Username:  user.Username,
-		FullName:  user.FullName,
-		Email:     user.Email,
-		Image:     user.Image,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
-	}
 }
 
 func (server *Server) register(ctx *gin.Context) {
@@ -85,9 +62,7 @@ func (server *Server) register(ctx *gin.Context) {
 		return
 	}
 
-	res := newUserResponse(user)
-
-	ctx.JSON(http.StatusOK, res)
+	ctx.JSON(http.StatusOK, user)
 }
 
 type loginRequest struct {
@@ -96,8 +71,8 @@ type loginRequest struct {
 }
 
 type loginResponse struct {
-	AccessToken string       `json:"access_token"`
-	User        userRepsonse `json:"user"`
+	AccessToken string  `json:"access_token"`
+	User        db.User `json:"user"`
 }
 
 func (server *Server) login(ctx *gin.Context) {
@@ -137,7 +112,7 @@ func (server *Server) login(ctx *gin.Context) {
 	}
 
 	res := loginResponse{
-		User:        newUserResponse(user),
+		User:        user,
 		AccessToken: accessToken,
 	}
 
@@ -156,7 +131,7 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newUserResponse(user))
+	ctx.JSON(http.StatusOK, user)
 }
 
 type updateUserRequest struct {
@@ -220,8 +195,7 @@ func (server *Server) updateUser(ctx *gin.Context) {
 		return
 	}
 
-	rsp := newUserResponse(user)
-	ctx.JSON(http.StatusOK, rsp)
+	ctx.JSON(http.StatusOK, user)
 }
 
 func (server *Server) deleteUser(ctx *gin.Context) {
